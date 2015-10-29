@@ -52,7 +52,7 @@ echo "#!/bin/bash" > $undofile
 echo "$list" | while read file
 do
 	# file name to be changed
-	cmd="stat '$file' | grep $strStat | awk '{print \$2\"_\"\$3}' | sed -e 's/-//g' | sed -e 's/://g' | sed -e 's/\./_/'"
+	cmd="stat '$file' | fgrep $strStat | awk '{print \$2\"_\"\$3}' | sed -e 's/-//g' | sed -e 's/://g' | sed -e 's/\./_/'"
 #	echo "$cmd"
 	date=`eval $cmd`
 	ms=`echo "$date" | awk -F _ '{print $3}'`
