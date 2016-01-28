@@ -22,10 +22,10 @@ then
 	exit 1
 fi
 
-for files in $(find . -name "*$1/$3*")
+find "$1" -name "*$3*" | while read files 
 do
 	new_file=$(echo "$files" | sed -e "s/$1/$2/" | sed -e "s/$3//g")
-	dir=$(bash getdir.sh $new_file)
+	dir=$(bash getdir.sh "$new_file")
 	mkdir -p "$dir"
 	mv -v "$files" "$new_file"
 done
