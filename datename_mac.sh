@@ -20,7 +20,7 @@ undofile=".datename_undo.sh"
 
 # depends on how many options, the index of [files..] may differ.
 # use creation
-strStat="Birth"
+strStat="%SB"
 prefix=""
 icOption=0
 if [ ${1:0:1} == "-" ]; then
@@ -28,7 +28,7 @@ if [ ${1:0:1} == "-" ]; then
 	(( icOption++ ))
 	if [ ${1:1} == "m" ]; then
 		# use modified
-		strStat="Modify"
+		strStat="%Sm"
 	elif [ ${1:1:1} == "p" ]; then
 		# use prefix
 		prefix="${1:2}"
@@ -39,7 +39,7 @@ if [ ${2:0:1} == "-" ]; then
 	(( icOption++ ))
 	if [ ${2:1} == "m" ]; then
 		# use modified
-		strStat="Modify"
+		strStat="%Sm"
 	elif [ ${2:1:1} == "p" ]; then
 		# use prefix
 		prefix="${2:2}"
@@ -68,20 +68,9 @@ echo "#!/bin/bash" > $undofile
 echo "$list" | while read file
 do
 	# file name to be changed
-	cmd="stat '$file' | fgrep $strStat | awk '{print \$2\"_\"\$3}' | sed -e 's/-//g' | sed -e 's/://g' | sed -e 's/\./_/'"
-#	echo "$cmd"
+	cmd="stat -f $strStat -t %Y%m%d_%H%M%S '$file'"
+	echo "$cmd"
 	date=`eval $cmd`
-	ms=`echo "$date" | awk -F _ '{print $3}'`
-
-	# round
-	ms=$(echo "$ms / 100000 + 5" | bc)
-	ms=${ms%?}
-
-	# leading zero
-	ms=$(printf %03d $ms)
-
-	date=$(echo "$date" | awk -F _ "{print \$1\"_\"\$2\"_$ms\"}") 
-#	echo "$date"
 
 	# get file extension
 	extension=$(getext.sh "$file")
@@ -92,7 +81,8 @@ do
 	outname="$dir$prefix$date${extension}"
 	outname=$(tmpfile.sh "$outname")
 
-	cmd="mv '$file' '$outname' -v --backup=t"
+	cmd="mv -v '$file' '$outname'"
+	echo "$cmd"
 	eval $cmd
 
 	undo="mv '$outname' '$file'"
